@@ -1,0 +1,41 @@
+stages:
+  - build
+  - deploy
+
+
+build:
+  stage: build
+  services:
+    - docker:23-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "$RANK_ENV" > .env
+    - docker build --pull -t "$CI_REGISTRY_IMAGE/app" -t "$CI_REGISTRY_IMAGE/app:$CI_PIPELINE_ID" -f ./docker/Dockerfile .
+    - docker push "$CI_REGISTRY_IMAGE/app"
+    - docker push "$CI_REGISTRY_IMAGE/app:$CI_PIPELINE_ID"
+    - docker logout
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  services:
+    - docker:23-dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd docker/api
+    - docker-compose pull --quiet
+    - docker-compose down && docker-compose up -d
+    # - docker exec api-app-1 php artisan migrate:fresh --force
+    - docker exec api_app_1 php artisan migrate --seed --force
+    - docker exec api_app_1 php artisan optimize:clear
+    # - docker exec api_queue_1 php artisan queue:work
+    - docker system prune -a --force
+    - docker logout
+
+  tags:
+    - docker
+  only:
+    - main

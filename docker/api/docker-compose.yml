@@ -1,0 +1,49 @@
+services:
+  app:
+    image: registry.go2tr.ir/g2/holding/google-rank-tracker/app:${CI_PIPELINE_ID}
+    restart: always
+    # container_name: api-app-1
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      CONTAINER_ROLE: nginx
+    user: root
+    networks:
+      - proxy
+      - mysql
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.tracker.entrypoints=websecure"
+      - "traefik.http.routers.tracker.rule=Host(`rank-tracker.go2tr.work`)"
+      - "traefik.http.services.tracker.loadbalancer.server.port=80"
+      - "traefik.http.routers.tracker.tls=true"
+      - "traefik.http.routers.tracker.tls.certresolver=lets-encrypt"
+
+
+
+  scheduler:
+    image: registry.go2tr.ir/g2/holding/google-rank-tracker/app:${CI_PIPELINE_ID}
+    restart: always
+    user: www
+    environment:
+      CONTAINER_ROLE: scheduler
+    networks:
+      - proxy
+      - mysql
+
+  queue:
+    image: registry.go2tr.ir/g2/holding/google-rank-tracker/app:${CI_PIPELINE_ID}
+    restart: always
+    user: root
+    environment:
+      CONTAINER_ROLE: queue
+    networks:
+      - proxy
+      - mysql
+
+networks:
+  proxy:
+    external: true
+  mysql:
+    external: true
+  
