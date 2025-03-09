@@ -2,195 +2,165 @@
 
 namespace App\Http\Controllers\Api\V1\Keyword;
 
-use App\Http\Controllers\Controller;
-use App\Repositories\Contracts\KeywordRepositoryInterface;
-use App\Http\Requests\Api\V1\Keyword\{
-    KeywordTop3Request,
-    KeywordTop10Request,
-    KeywordImportRequest,
-    KeywordVolumeRequest,
-    KeywordLosersWinners,
-    KeywordProgressRequest,
-    KeywordDistributionRequest,
-    KeywordGainersLosersRequest,
-    KeywordAveragePositionRequest,
-    KeywordTopOneCompetitorRequest,
-    KeywordTopTenCompetitorRequest,
-    KeywordAnalyzeCompetitorRequest,
-    KeywordCompetitorsAverageRequest,
-    KeywordAverageHistoryCompetitorRequest,
-    KeywordCompetitorsSearchVolumeRankingRequest
-};
+use App\Http\Resources\keyword\KeywordsResource;
+use App\Imports\ImportKeyword;
+use App\Repositories\Eloquent\Contracts\SiteDetailRepositoryInterface;
+use App\Repositories\Eloquent\Contracts\SiteRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use App\Traits\JsonResponseTrait;
+use App\Http\Controllers\Controller;
+use App\Repositories\Eloquent\Contracts\KeywordRepositoryInterface;
+use App\Http\Requests\Api\V1\Keyword\{
+    KeywordFilterRequest,
+    KeywordImportRequest,
+    KeywordCompetitorsAverageRequest,
+};
+use Maatwebsite\Excel\Facades\Excel;
 
 class KeywordController extends Controller
 {
     use JsonResponseTrait;
 
-    private $keywordRepository;
-
-    public function __construct(KeywordRepositoryInterface $keywordRepository)
+    public function __construct
+    (
+        private readonly SiteRepositoryInterface $siteRepository,
+        private readonly KeywordRepositoryInterface $keywordRepository,
+        private readonly SiteDetailRepositoryInterface $siteDetailRepository
+    )
     {
-        $this->keywordRepository = $keywordRepository;
+        //
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function getAllKeywords(): JsonResponse
     {
         $keywords = $this->keywordRepository->getAllKeywords();
-        return $this->successResponse('عملیات موفق!', ['keywords' => $keywords]);
+        return $this->successResponse(__('messages.operation_successfully'), ['keywords' => $keywords]);
     }
 
-    public function keywordProgress(KeywordProgressRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $progress = $this->keywordRepository->getKeywordProgress($data['site_id'], $data['keyword_id'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات موفق!', $progress);
-    }
-
-    public function keywordTop3(KeywordTop3Request $request): JsonResponse
-    {
-        $data = $request->validated();
-        $results = $this->keywordRepository->getKeywordTop3($data['site_id'], $data['first_date'], $data['last_date'], $data['limit'] ?? 50);
-        return $this->successResponse('عملیات موفق!', $results);
-    }
-
-    public function keywordTop10(KeywordTop10Request $request): JsonResponse
-    {
-        $data = $request->validated();
-        $results = $this->keywordRepository->getKeywordTop10($data['site_id'], $data['first_date'], $data['last_date'], $data['limit'] ?? 50);
-        return $this->successResponse('عملیات موفق!', $results);
-    }
-
+    /**
+     * @param KeywordImportRequest $request
+     * @return JsonResponse
+     */
     public function importKeyword(KeywordImportRequest $request): JsonResponse
     {
         try {
-            $request->validated();
-            $this->keywordRepository->importKeywords($request->all());
-            return $this->successResponse('عملیات اضافه کردن کلید با موفقیت انجام شد');
-        } catch (\Exception $e) {
-            return $this->errorResponse('عملیات اضافه کردن کلید با مشکلی مواجه شد', 500);
+            Excel::queueImport(new ImportKeyword(),
+                $request->file('file')->store('files/keywords'));
+
+            return $this->successResponse(__('messages.keyword_successfully_added'));
+        } catch (\Throwable $e) {
+            report($e);
+            return $this->errorResponse(__('messages.keyword_add_failed'), 500);
         }
     }
 
-    public function averagePosition(KeywordAveragePositionRequest $request): JsonResponse
+    /**
+     * @param KeywordFilterRequest $request
+     * @return JsonResponse
+     */
+    public function competitorsSearchVolumeRankingWithAllSites(KeywordFilterRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $averageRanks = $this->keywordRepository->getAveragePosition($data['site_ids'], $data['keywords'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $averageRanks);
+        $offset = ($data['limit']  - 1) * 50;
+        $keywords = $this->keywordRepository->getCompetitorsSearchVolumeRanking($offset, 50);
+
+        return $this->successResponse(__('messages.operation_successfully'), KeywordsResource::collection($keywords));
     }
 
-    public function competitorsSearchVolumeRankingWithAllSites(KeywordVolumeRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $keywords = $this->keywordRepository->getCompetitorsSearchVolumeRanking($data['limit'] ?? 1, 50);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $keywords);
-    }
-
+    /**
+     * @return JsonResponse
+     */
     public function competitorsTopOneMapToday(): JsonResponse
     {
         $data = $this->keywordRepository->getCompetitorsTopOneMapToday();
-        return $this->successResponse('عملیات با موفقیت انجام شد', $data);
+        return $this->successResponse(__('messages.operation_successfully'), $data);
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function competitorsTopThreeMapToday(): JsonResponse
     {
         $data = $this->keywordRepository->getCompetitorsTopThreeMapToday();
-        return $this->successResponse('عملیات با موفقیت انجام شد', $data);
+        return $this->successResponse(__('messages.operation_successfully'), $data);
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function competitorsTopTenMapToday(): JsonResponse
     {
         $data = $this->keywordRepository->getCompetitorsTopTenMapToday();
-        return $this->successResponse('عملیات با موفقیت انجام شد', $data);
+        return $this->successResponse(__('messages.operation_successfully'), $data);
     }
 
+    /**
+     * @param KeywordCompetitorsAverageRequest $request
+     * @return JsonResponse
+     */
     public function competitorsAverageMapToday(KeywordCompetitorsAverageRequest $request): JsonResponse
     {
         $data = $request->validated();
         $averageRanks = $this->keywordRepository->getCompetitorsAverageMapToday($data['keywords']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', ['averageRanks' => $averageRanks]);
+        return $this->successResponse(__('messages.operation_successfully'), ['averageRanks' => $averageRanks]);
     }
 
-    public function analyzeKeywords(): JsonResponse
-    {
-        $data = $this->keywordRepository->analyzeKeywords();
-        return $this->successResponse('عملیات با موفقیت انجام شد', $data);
-    }
-
-    public function keywordPositionDistribution(KeywordDistributionRequest $request): JsonResponse
+    /**
+     * @param KeywordFilterRequest $request
+     * @return JsonResponse
+     */
+    public function keywordPositionDistribution(KeywordFilterRequest $request): JsonResponse
     {
         $data = $request->validated();
         $distribution = $this->keywordRepository->getKeywordPositionDistribution($data['site_id']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $distribution);
+        return $this->successResponse(__('messages.operation_successfully'), $distribution);
     }
 
-    public function averageHistoryReportCompetitor(KeywordAverageHistoryCompetitorRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getAverageHistoryReportCompetitor($data['site_id'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $report);
-    }
 
-    public function topOneMapCompetitor(KeywordTopOneCompetitorRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getTopOneMapCompetitor($data['site_id'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $report);
-    }
 
-    public function topThreeMapCompetitor(KeywordTopThreeCompetitorRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getTopThreeMapCompetitor($data['site_id'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $report);
-    }
-
-    public function topTenMapCompetitor(KeywordTopTenCompetitorRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getTopTenMapCompetitor($data['site_id'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $report);
-    }
-
-    public function competitorsSearchVolumeRanking(KeywordCompetitorsSearchVolumeRankingRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getCompetitorsSearchVolumeRankingWithSite($data['site_id'], $data['first_date'], $data['last_date']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $report);
-    }
-
-    public function losersWinners(KeywordLosersWinners $request): JsonResponse
+    /**
+     * @param KeywordFilterRequest $request
+     * @return JsonResponse
+     */
+    public function losersWinners(KeywordFilterRequest $request): JsonResponse
     {
         $data = $request->validated();
         $report = $this->keywordRepository->getLosersWinners($data['limit']);
-        return $this->successResponse('عملیات موفق!', $report);
+        return $this->successResponse(__('messages.operation_successfully'), $report);
     }
 
-    public function analyzeKeywordsCompetitor(KeywordAnalyzeCompetitorRequest $request): JsonResponse
+    /**
+     * @param int $siteId
+     * @return JsonResponse
+     */
+    public function analyzeKeywordsCompetitor(int $siteId): JsonResponse
     {
-        $data = $request->validated();
-        $report = $this->keywordRepository->analyzeKeywordsCompetitor($data['site_id']);
-        return $this->successResponse('عملیات با موفقیت انجام شد', $report);
+        $report = $this->keywordRepository->analyzeKeywordsCompetitor($siteId);
+        return $this->successResponse(__('messages.operation_successfully'), $report);
     }
 
-    public function gainersLosersDecreased(KeywordGainersLosersRequest $request): JsonResponse
+    /**
+     * @param int $siteId
+     * @return JsonResponse
+     */
+    public function gainersLosersDecreased(int $siteId): JsonResponse
     {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getGainersLosersDecreased($data['site_id']);
-        return $this->successResponse('عملیات موفق!', $report);
+        $report = $this->keywordRepository->getGainersLosersDecreased($siteId);
+        return $this->successResponse(__('messages.operation_successfully'), $report);
     }
 
-    public function gainersLosersIncreased(KeywordGainersLosersRequest $request): JsonResponse
+    /**
+     * @param int $siteId
+     * @return JsonResponse
+     */
+    public function gainersLosersIncreased(int $siteId): JsonResponse
     {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getGainersLosersIncreased($data['site_id']);
-        return $this->successResponse('عملیات موفق!', $report);
+        $report = $this->keywordRepository->getGainersLosersIncreased($siteId);
+        return $this->successResponse(__('messages.operation_successfully'), $report);
     }
 
-    public function keywordPositionFlow(): JsonResponse
-    {
-        $report = $this->keywordRepository->getKeywordPositionFlow();
-        return $this->successResponse('عملیات موفق!', $report);
-    }
+
 }

@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\V1\Keyword;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class KeywordTop3Request extends FormRequest
+class KeywordFilterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
