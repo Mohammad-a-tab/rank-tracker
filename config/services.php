@@ -15,7 +15,8 @@ return [
     */
 
     'google' => [
-        'api_key' => env('API_KEY_GOOGLE')
+        'api_key'       => env('GOOGLE_SERPER_API_KEY'),
+        'serper_url'    => env('GOOGLE_SERPER_API_URL')
     ],
 
     'go2tr' => [

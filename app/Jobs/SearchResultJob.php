@@ -44,7 +44,7 @@ class SearchResultJob implements ShouldQueue
         $response = Http::withHeaders([
             'X-API-KEY'     => config('services.google.api_key'),
             'Content-Type'  => 'application/json',
-        ])->post('https://google.serper.dev/search', $payload);
+        ])->post(config('services.google.api_key'), $payload);
 
         if ($response->status() == 400) {
             logger()->error('Not enough credits in serper api!');
