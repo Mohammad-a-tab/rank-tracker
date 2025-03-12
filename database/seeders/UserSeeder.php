@@ -14,48 +14,12 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::query()->updateOrCreate([
-            'email'         => 'masoud@g2holding.org',
+            'email'         => 'test@gmail.com',
         ], [
-            'name'          => 'مسعود',
-            'last_name'     => 'توکلی',
-            'username'      => 'masoud',
-            'password'      => Hash::make('H5QDDJok'),
-        ]);
-
-        User::query()->updateOrCreate([
-            'email'         => 'behnaz.valizadeh@g2holding.org',
-        ], [
-            'name'          => 'بهناز',
-            'last_name'     => 'ولیزاده',
-            'username'      => 'behnaz.valizadeh',
-            'password'      => Hash::make('H5QDDJok')
-        ]);
-
-        User::query()->updateOrCreate([
-            'email'         => 'behnaz.nouri@g2holding.org',
-        ], [
-            'name'          => 'بهناز',
-            'last_name'     => 'نوری',
-            'username'      => 'behnaz.nouri',
-            'password'      => Hash::make('H5QDDJok')
-        ]);
-
-        User::query()->updateOrCreate([
-            'email'         => 'erfan.hemmati@g2holding.org',
-        ], [
-            'name'          => 'عرفان',
-            'last_name'     => 'همتی',
-            'username'      => 'erfan.hemmati',
-            'password'      => Hash::make('H5QDDJok')
-        ]);
-
-        User::query()->updateOrCreate([
-            'email'         => 'mohammad.aali@g2holding.org',
-        ], [
-            'name'          => 'محمد',
-            'last_name'     => 'عالی',
-            'username'      => 'mohammad.aali',
-            'password'      => Hash::make('H5QDDJok')
+            'name'          => 'test',
+            'last_name'     => 'test',
+            'username'      => 'test',
+            'password'      => Hash::make('123456'),
         ]);
     }
 }

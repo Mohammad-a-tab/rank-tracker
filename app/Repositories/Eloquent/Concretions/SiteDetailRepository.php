@@ -159,4 +159,36 @@ class SiteDetailRepository extends EloquentBaseRepository implements SiteDetailR
 
         return $query->distinct()->count('site_details.keyword_id');
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSiteDetailsWithKeyword(int $siteId, int $keywordId, string $startDate, string $endDate): Collection
+    {
+        return $this->model
+            ->select([
+                DB::raw('DATE(created_at) as date'),
+                'rank',
+                DB::raw('(SELECT name FROM keywords WHERE keywords.id = site_details.keyword_id) AS keyword')
+            ])
+            ->where('site_id', $siteId)
+            ->where('keyword_id', $keywordId)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDistinctTitlesBySiteAndKeyword(int $siteId, string $keywordName): Collection
+    {
+        return $this->model
+            ->where('site_id', $siteId)
+            ->whereHas('keyword', function ($query) use ($keywordName) {
+                $query->where('name', $keywordName);
+            })
+            ->select('title')
+            ->distinct()
+            ->get();
+    }
 }

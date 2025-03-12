@@ -37,6 +37,9 @@ class AuthController extends Controller
         return $this->successResponse(__('messages.login_successfully'), ['token' => $token]);
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function logout(): JsonResponse
     {
         $loggedInUser = auth('sanctum')->user();

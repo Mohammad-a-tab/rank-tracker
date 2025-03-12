@@ -2,20 +2,15 @@
 
 namespace App\Http\Controllers\Api\V1\Keyword;
 
-use App\Http\Resources\keyword\KeywordsResource;
 use App\Imports\ImportKeyword;
-use App\Repositories\Eloquent\Contracts\SiteDetailRepositoryInterface;
-use App\Repositories\Eloquent\Contracts\SiteRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\Controller;
-use App\Repositories\Eloquent\Contracts\KeywordRepositoryInterface;
-use App\Http\Requests\Api\V1\Keyword\{
-    KeywordFilterRequest,
-    KeywordImportRequest,
-    KeywordCompetitorsAverageRequest,
-};
 use Maatwebsite\Excel\Facades\Excel;
+use App\Http\Resources\keyword\KeywordsResource;
+use App\Http\Requests\Api\V1\Keyword\KeywordFilterRequest;
+use App\Http\Requests\Api\V1\Keyword\KeywordImportRequest;
+use App\Repositories\Eloquent\Contracts\KeywordRepositoryInterface;
 
 class KeywordController extends Controller
 {
@@ -23,9 +18,7 @@ class KeywordController extends Controller
 
     public function __construct
     (
-        private readonly SiteRepositoryInterface $siteRepository,
-        private readonly KeywordRepositoryInterface $keywordRepository,
-        private readonly SiteDetailRepositoryInterface $siteDetailRepository
+        private readonly KeywordRepositoryInterface $keywordRepository
     )
     {
         //
@@ -71,68 +64,6 @@ class KeywordController extends Controller
     }
 
     /**
-     * @return JsonResponse
-     */
-    public function competitorsTopOneMapToday(): JsonResponse
-    {
-        $data = $this->keywordRepository->getCompetitorsTopOneMapToday();
-        return $this->successResponse(__('messages.operation_successfully'), $data);
-    }
-
-    /**
-     * @return JsonResponse
-     */
-    public function competitorsTopThreeMapToday(): JsonResponse
-    {
-        $data = $this->keywordRepository->getCompetitorsTopThreeMapToday();
-        return $this->successResponse(__('messages.operation_successfully'), $data);
-    }
-
-    /**
-     * @return JsonResponse
-     */
-    public function competitorsTopTenMapToday(): JsonResponse
-    {
-        $data = $this->keywordRepository->getCompetitorsTopTenMapToday();
-        return $this->successResponse(__('messages.operation_successfully'), $data);
-    }
-
-    /**
-     * @param KeywordCompetitorsAverageRequest $request
-     * @return JsonResponse
-     */
-    public function competitorsAverageMapToday(KeywordCompetitorsAverageRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $averageRanks = $this->keywordRepository->getCompetitorsAverageMapToday($data['keywords']);
-        return $this->successResponse(__('messages.operation_successfully'), ['averageRanks' => $averageRanks]);
-    }
-
-    /**
-     * @param KeywordFilterRequest $request
-     * @return JsonResponse
-     */
-    public function keywordPositionDistribution(KeywordFilterRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $distribution = $this->keywordRepository->getKeywordPositionDistribution($data['site_id']);
-        return $this->successResponse(__('messages.operation_successfully'), $distribution);
-    }
-
-
-
-    /**
-     * @param KeywordFilterRequest $request
-     * @return JsonResponse
-     */
-    public function losersWinners(KeywordFilterRequest $request): JsonResponse
-    {
-        $data = $request->validated();
-        $report = $this->keywordRepository->getLosersWinners($data['limit']);
-        return $this->successResponse(__('messages.operation_successfully'), $report);
-    }
-
-    /**
      * @param int $siteId
      * @return JsonResponse
      */
@@ -141,26 +72,4 @@ class KeywordController extends Controller
         $report = $this->keywordRepository->analyzeKeywordsCompetitor($siteId);
         return $this->successResponse(__('messages.operation_successfully'), $report);
     }
-
-    /**
-     * @param int $siteId
-     * @return JsonResponse
-     */
-    public function gainersLosersDecreased(int $siteId): JsonResponse
-    {
-        $report = $this->keywordRepository->getGainersLosersDecreased($siteId);
-        return $this->successResponse(__('messages.operation_successfully'), $report);
-    }
-
-    /**
-     * @param int $siteId
-     * @return JsonResponse
-     */
-    public function gainersLosersIncreased(int $siteId): JsonResponse
-    {
-        $report = $this->keywordRepository->getGainersLosersIncreased($siteId);
-        return $this->successResponse(__('messages.operation_successfully'), $report);
-    }
-
-
 }

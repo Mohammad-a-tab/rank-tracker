@@ -96,4 +96,24 @@ interface SiteDetailRepositoryInterface extends BaseRepositoryInterface
      * @return int
      */
     public function getKeywordRankChanges(int $siteId, string $date, string $type): int;
+
+    /**
+     * Get site details with keyword names.
+     *
+     * @param int $siteId
+     * @param int $keywordId
+     * @param string $startDate
+     * @param string $endDate
+     * @return Collection
+     */
+    public function getSiteDetailsWithKeyword(int $siteId, int $keywordId, string $startDate, string $endDate): Collection;
+
+    /**
+     * Get distinct titles based on site ID and keyword name.
+     *
+     * @param int $siteId
+     * @param string $keywordName
+     * @return Collection
+     */
+    public function getDistinctTitlesBySiteAndKeyword(int $siteId, string $keywordName): Collection;
 }

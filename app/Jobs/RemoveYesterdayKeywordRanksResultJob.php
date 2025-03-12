@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use Carbon\Carbon;
-use App\Models\KeywordsRanks;
+use App\Models\KeywordRanks;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -29,7 +29,7 @@ class RemoveYesterdayKeywordRanksResultJob implements ShouldQueue
     {
         $twoDaysAgo = Carbon::now()->subDays(2)->endOfDay();
 
-        KeywordsRanks::query()
+        KeywordRanks::query()
             ->where('created_at', '<=' , $twoDaysAgo)
             ->delete();
     }

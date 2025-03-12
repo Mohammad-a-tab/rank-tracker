@@ -11,6 +11,8 @@ return [
     "login_successfully"            => "ورود با موفقیت انجام شد.",
     "logout_successfully"           => "خروج با موفقیت انجام شد.",
     "operation_successfully"        => "عملیات با موفقیت انجام شد.",
+    "successfully_added_site"       => "عملیات اضافه کردن آدرس سایت با موفقیت انجام شد",
+    "failed_added_site"             => "عملیات اضافه کردن آدرس سایت با مشکلی مواجه شد",
     "keyword_successfully_added"    => "عملیات اضافه کردن کلید با موفقیت انجام شد.",
     "keyword_add_failed"            => "عملیات اضافه کردن کلید با مشکلی مواجه شد.",
 ];

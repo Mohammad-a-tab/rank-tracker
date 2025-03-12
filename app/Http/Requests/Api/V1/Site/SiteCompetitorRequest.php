@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\Keyword;
+namespace App\Http\Requests\Api\V1\Site;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class KeywordCompetitorsAverageRequest extends FormRequest
+class SiteCompetitorRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,11 @@ class KeywordCompetitorsAverageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'keywordIds'      => 'nullable|array',
-            'keywordIds.*'    => 'nullable|exists:keywords,id',
+            'site_ids'      => 'required|array',
+            'site_ids.*'    => 'required|exists:sites,id',
+            'limit'         => 'nullable|integer',
+            'first_date'    => 'required|date',
+            'last_date'     => 'required|date',
         ];
     }
 }

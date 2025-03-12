@@ -24,8 +24,8 @@ class MonthlyProgressRequest extends FormRequest
         return [
             'site_id'       => 'required|integer|exists:sites,id',
             'keyword_id'    => 'required|integer|exists:keywords,id',
-            'first_date'    => 'required|string',
-            'last_date'     => 'required|string'
+            'first_date'    => 'required|date',
+            'last_date'     => 'required|date'
         ];
     }
 }

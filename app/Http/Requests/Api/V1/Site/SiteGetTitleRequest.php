@@ -23,7 +23,7 @@ class SiteGetTitleRequest extends FormRequest
     {
         return [
             'site_id'       => 'required|exists:sites,id',
-            'keyword'       => 'required|exists:keywords,name'
+            'keyword_name'  => 'required|string'
         ];
     }
 }

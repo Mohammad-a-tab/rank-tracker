@@ -5,8 +5,9 @@ namespace App\Http\Controllers\Api\V1\SiteDetail;
 use Illuminate\Http\JsonResponse;
 use App\Traits\JsonResponseTrait;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\Site\SiteCompetitorRequest;
+use App\Http\Requests\Api\V1\Site\MonthlyProgressRequest;
 use App\Http\Requests\Api\V1\Keyword\KeywordFilterRequest;
-use App\Http\Requests\Api\V1\Keyword\SiteCompetitorRequest;
 use App\Http\Requests\Api\V1\Keyword\KeywordProgressRequest;
 use App\Repositories\Eloquent\Contracts\SiteRepositoryInterface;
 use App\Http\Requests\Api\V1\Keyword\KeywordAveragePositionRequest;
@@ -137,5 +138,23 @@ class SiteDetailController extends Controller
             'wentDown'  => $this->siteDetailRepository->getKeywordRankChanges($siteId, $date, 'down'),
             'unchanged' => $this->siteDetailRepository->getKeywordRankChanges($siteId, $date, 'unchanged'),
         ];
+    }
+
+    /**
+     * @param MonthlyProgressRequest $request
+     * @return JsonResponse
+     */
+    public function getSiteDetails(MonthlyProgressRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $result = $this->siteDetailRepository->getSiteDetailsWithKeyword(
+            $data['site_id'],
+            $data['keyword_id'],
+            $data['first_date'],
+            $data['last_date']
+        );
+
+        return $this->successResponse(__('messages.operation_successfully'), $result);
     }
 }

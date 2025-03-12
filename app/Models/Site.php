@@ -10,8 +10,14 @@ class Site extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $guarded = ['id'];
 
+    /**
+     * @return HasMany
+     */
     public function detail(): HasMany
     {
         return $this->hasMany(SiteDetail::class);

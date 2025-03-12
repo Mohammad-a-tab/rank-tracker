@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use App\Models\KeywordsRanks;
+use App\Models\KeywordRanks;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -39,7 +39,7 @@ class InsertKeywordsRanksChunkJob implements ShouldQueue
             $chunks = array_chunk($this->data,1000);
 
             foreach($chunks as $chunk){
-                KeywordsRanks::insert($chunk);
+                KeywordRanks::insert($chunk);
             }
 //            foreach ($this->data as $item) {
 //                KeywordsRanks::insert(

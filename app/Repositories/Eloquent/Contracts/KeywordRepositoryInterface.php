@@ -79,34 +79,7 @@ interface KeywordRepositoryInterface extends BaseRepositoryInterface
      */
     public function getCompetitorsSearchVolumeRanking(int $offset, int $perPage): Collection;
 
-    /**
-     * Get the top 1 ranking map for competitors' keywords today.
-     *
-     * @return array
-     */
-    public function getCompetitorsTopOneMapToday(): array;
 
-    /**
-     * Get the top 3 ranking map for competitors' keywords today.
-     *
-     * @return array
-     */
-    public function getCompetitorsTopThreeMapToday(): array;
-
-    /**
-     * Get the top 10 ranking map for competitors' keywords today.
-     *
-     * @return array
-     */
-    public function getCompetitorsTopTenMapToday(): array;
-
-    /**
-     * Get the average ranking map for competitors' keywords today.
-     *
-     * @param array $keywords
-     * @return Collection
-     */
-    public function getCompetitorsAverageMapToday(array $keywords): Collection;
 
     /**
      * Analyze keywords for a specific site.

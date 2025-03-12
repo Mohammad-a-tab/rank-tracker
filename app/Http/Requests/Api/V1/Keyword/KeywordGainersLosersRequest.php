@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\V1\Keyword;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SiteCompetitorRequest extends FormRequest
+class KeywordGainersLosersRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,8 @@ class SiteCompetitorRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'site_ids'      => 'required|array',
-            'site_ids.*'    => 'required|exists:sites,id',
-            'limit'         => 'nullable|integer',
-            'first_date'    => 'required|date',
-            'last_date'     => 'required|date',
+            'site_id'   => 'required|exists:sites,id',
+            'type'      => 'required|integer',
         ];
     }
 }
